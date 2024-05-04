@@ -1,6 +1,23 @@
 import { handleResponseStatus, SERVER_ORIGIN } from "./generalUtilities";
 import { Notification, Ticket } from "@/models/models";
-export async function getAllTicketsAndEmailUpdatesForUser(
+import {supabase} from "@/utilities/supabase/supabase";
+import {createClient} from "@/utilities/supabase/client";
+
+export const getAllTicketsAndEmailUpdatesForUser = async (
+  userEmail: string,
+  lastName: string,
+) => {
+  return createClient()
+    .from("users")
+    .select(`
+      helpdesk_ticket (*)
+     `)
+    .eq("email", userEmail)
+    .eq("last_name", lastName);
+}
+
+// TODO: delete this function
+export async function getAllTicketsAndEmailUpdatesForUserOld(
   userEmail: string,
   lastName: string,
 ): Promise<{ tickets: Ticket[]; emails: Notification[] }> {
@@ -18,7 +35,58 @@ export async function getAllTicketsAndEmailUpdatesForUser(
   });
 }
 
-export const createTicket = (
+export const createTicket = async (
+  email: string,
+  description: string,
+  firstName: string,
+  lastName: string,
+) => {
+  let userId = null;
+  let error = null;
+  // Check if user exists
+  let { data, count } = await createClient()
+    .from("users")
+    .select("*", {count: "exact"})
+    .eq("email", email);
+
+  console.log("user exists", data, "count", count);
+
+  userId = data ? data[0].id : null;
+
+  // if not, create user
+  if (count === 0) {
+    const {data, error} = await createClient()
+      .from("users")
+      .insert([
+        {
+          email: email,
+          first_name: firstName,
+          last_name: lastName,
+        },
+      ])
+      .select();
+
+    console.log("create user", data, "error create user", error);
+
+    if (error) {
+      throw new Error("Fail to create user");
+    }
+    userId = data ? data[0].id : null;
+  }
+  console.log("user id", userId, "description", description);
+  // create ticket
+   return createClient()
+     .from("helpdesk_ticket")
+     .insert([
+       {
+         issue_description: description,
+         user_id: userId,
+       },
+     ])
+};
+
+// TODO: delete this function
+export const createTicketOld = (
   email: string,
   description: string,
   firstName: string,
@@ -42,7 +110,7 @@ export const createTicket = (
   });
 };
 
-export const editTicket = (
+export const editTicketOld = (
   email: string,
   ticketId: string,
   description: string,

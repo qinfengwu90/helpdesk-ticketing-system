@@ -3,7 +3,8 @@ import { Notification, Ticket } from "@/models/models";
 import UserInfoToReviewTicket from "./UserInfoToReviewTicket";
 import UserExistingTickets from "./UserExistingTickets";
 import { formatTicketStatus } from "@/utilities/generalUtilities";
-import { getAllTicketsAndEmailUpdatesForUser } from "@/utilities/userUtilities";
+import {
+  getAllTicketsAndEmailUpdatesForUser } from "@/utilities/userUtilities";
 
 function AllUserTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -13,10 +14,12 @@ function AllUserTickets() {
   useEffect(() => {
     let userEmail = localStorage.getItem("userEmail");
     let userLastName = localStorage.getItem("userLastName");
+
     if (userEmail && userLastName) {
       getAllTicketsAndEmailUpdatesForUser(userEmail, userLastName)
         .then((value) => {
-          onSuccess(value.tickets, value.emails);
+          console.log(value);
+          // onSuccess(value.tickets, value.emails);
         })
         .catch((err) => {
           console.log(err);

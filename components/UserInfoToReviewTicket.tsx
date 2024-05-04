@@ -14,7 +14,7 @@ function UserInfoToReviewTicket({
         localStorage.setItem("userLastName", data.lastName);
         getAllTicketsAndEmailUpdatesForUser(data.email, data.lastName)
             .then((value) => {
-                onSuccess(value.tickets, value.emails);
+                // onSuccess(value.tickets, value.emails);
                 window.location.reload();
             })
             .catch((err) => {

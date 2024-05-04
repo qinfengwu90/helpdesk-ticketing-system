@@ -22,6 +22,7 @@ function AdminTicketView() {
         return 0;
     }
   }
+
   const columns: TableProps<Ticket>["columns"] = [
     {
       title: "ID",
@@ -135,7 +136,7 @@ function AdminTicketView() {
     setDisplayModal(false);
     getAllTickets()
       .then((value) => {
-        setTickets(value.tickets);
+        // setTickets(value.tickets);
       })
       .catch((err) => {
         message.error(err.message);
