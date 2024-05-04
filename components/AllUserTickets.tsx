@@ -5,6 +5,7 @@ import UserExistingTickets from "./UserExistingTickets";
 import { formatTicketStatus } from "@/utilities/generalUtilities";
 import {
   getAllTicketsAndEmailUpdatesForUser } from "@/utilities/userUtilities";
+import {undefined} from "zod";
 
 function AllUserTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -40,12 +41,23 @@ function AllUserTickets() {
     setCorrectUserInfoEntered(!correctUserInfoEntered);
     console.log("retrievedTickets", retrievedTickets, "retrievedEmails", retrievedEmails);
     if (retrievedTickets !== null) {
+      let tickets: Ticket[] = [];
       retrievedTickets.forEach((ticket, index) => {
         console.log("each ticket", ticket);
-        retrievedTickets[index].status = formatTicketStatus(ticket.status);
+        // retrievedTickets[index].status = formatTicketStatus(ticket.status);
+        tickets.push({
+          userId: ticket.users.id,
+          id: ticket.id,
+          issueDescription: ticket.issue_description,
+          status: formatTicketStatus(ticket.status),
+          adminResponse: ticket.admin_response,
+          updatedAt: new Date(ticket.updated_at),
+          createdAt: new Date(ticket.created_at),
+        });
       });
-      setTickets([...retrievedTickets] as Ticket[]);
+      setTickets([...tickets]);
     }
+
     if (retrievedEmails !== null) {
       let emails: Notification[] = []
       retrievedEmails.forEach((email) => {
