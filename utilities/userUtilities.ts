@@ -7,13 +7,48 @@ export const getAllTicketsAndEmailUpdatesForUser = async (
   userEmail: string,
   lastName: string,
 ) => {
-  return createClient()
+  const allTickets = await getAllTicketsForUser(userEmail, lastName);
+  const allEmails = await getAllEmailsForUser(userEmail, lastName);
+  return { tickets: allTickets, emails: allEmails };
+}
+
+async function getAllTicketsForUser(
+  userEmail: string,
+  lastName: string,
+) {
+  const {data, error} = await createClient()
     .from("users")
     .select(`
       helpdesk_ticket (*)
      `)
     .eq("email", userEmail)
     .eq("last_name", lastName);
+
+  if (error) {
+    throw new Error("Fail to get tickets");
+  }
+
+  return data
+}
+
+async function getAllEmailsForUser(
+  userEmail: string,
+  lastName: string,
+) {
+  const {data, error} = await createClient()
+    .from("ticket_notification_email")
+    .select(`
+      *,
+      helpdesk_ticket (*, users (*))
+     `)
+
+  console.log("emails", data, "error", error)
+
+  if (error) {
+    throw new Error("Fail to get emails");
+  }
+
+  return data.filter((email: any) => email.helpdesk_ticket.users.email === userEmail && email.helpdesk_ticket.users.last_name === lastName)
 }
 
 // TODO: delete this function

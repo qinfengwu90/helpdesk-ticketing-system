@@ -15,11 +15,17 @@ function AllUserTickets() {
     let userEmail = localStorage.getItem("userEmail");
     let userLastName = localStorage.getItem("userLastName");
 
+    console.log("initial userEmail", userEmail, "initial userLastName", userLastName);
+
     if (userEmail && userLastName) {
       getAllTicketsAndEmailUpdatesForUser(userEmail, userLastName)
         .then((value) => {
           console.log(value);
-          // onSuccess(value.tickets, value.emails);
+          let tickets = [];
+          if (value.tickets?.length > 0) {
+            tickets = value.tickets[0].helpdesk_ticket;
+          }
+          onSuccess(tickets, value?.emails);
         })
         .catch((err) => {
           console.log(err);
@@ -28,18 +34,29 @@ function AllUserTickets() {
   }, []);
 
   const onSuccess = (
-    retrievedTickets: Ticket[],
-    retrievedEmails: Notification[],
+    retrievedTickets: any[],
+    retrievedEmails: any[],
   ) => {
     setCorrectUserInfoEntered(!correctUserInfoEntered);
+    console.log("retrievedTickets", retrievedTickets, "retrievedEmails", retrievedEmails);
     if (retrievedTickets !== null) {
       retrievedTickets.forEach((ticket, index) => {
+        console.log("each ticket", ticket);
         retrievedTickets[index].status = formatTicketStatus(ticket.status);
       });
-      setTickets([...retrievedTickets]);
+      setTickets([...retrievedTickets] as Ticket[]);
     }
     if (retrievedEmails !== null) {
-      setEmails([...retrievedEmails]);
+      let emails: Notification[] = []
+      retrievedEmails.forEach((email) => {
+        emails.push({
+          id: email.id,
+          ticketId: email.ticket_id,
+          message: email.message,
+          createdAt: new Date(email.created_at),
+        });
+        setEmails([...emails]);
+      })
     }
   };
 
