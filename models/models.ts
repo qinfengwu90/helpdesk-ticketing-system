@@ -4,6 +4,9 @@ export interface Ticket {
   issueDescription: string;
   status: string;
   adminResponse: string;
+  email: string;
+  firstName: string;
+  lastName: string;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,4 +1,5 @@
 export const SERVER_ORIGIN = process.env.REACT_APP_API_ROOT;
+import {createClient} from "@/utilities/supabase/client";
 
 export const handleResponseStatus = (response: Response, errMsg: string) => {
   const { status, ok } = response;
@@ -14,18 +15,25 @@ export const handleResponseStatus = (response: Response, errMsg: string) => {
   }
 };
 
-export const deleteTicket = (ticketId: number) => {
+export const deleteTicket = async (ticketId: number) => {
+  return createClient()
+    .from("helpdesk_ticket")
+    .update({archived_at: "now()"})
+    .eq("id", ticketId);
+}
+
+// TODO: delete this function
+export const deleteTicketOld = async (ticketId: number) => {
   const url = `${SERVER_ORIGIN}/delete-ticket`;
 
-  return fetch(url, {
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ ticketId: ticketId }),
-  }).then((response) => {
-    handleResponseStatus(response, "Fail to delete ticket");
+    body: JSON.stringify({ticketId: ticketId}),
   });
+  handleResponseStatus(response, "Fail to delete ticket");
 };
 
 export const formatTicketStatus = (status: string) => {

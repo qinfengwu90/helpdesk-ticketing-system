@@ -1,12 +1,41 @@
 import {createClient} from "@/utilities/supabase/client";
+import {Notification, Ticket} from "@/models/models";
 
 export const getAllTicketsAndEmailUpdatesForUser = async (
   userEmail: string,
   lastName: string,
 ) => {
+  let tickets: Ticket[] = [];
+  let emails: Notification[] = [];
   const allTickets = await getAllTicketsForUser(userEmail, lastName);
   const allEmails = await getAllEmailsForUser(userEmail, lastName);
-  return { tickets: allTickets, emails: allEmails };
+  if (allTickets?.length > 0) {
+    let tempTicket = allTickets[0];
+    tempTicket.helpdesk_ticket.forEach((ticket: any) => {
+      tickets.push({
+        id: ticket.id,
+        userId: ticket.user_id,
+        issueDescription: ticket.issue_description,
+        status: ticket.status,
+        adminResponse: ticket.admin_response,
+        email: tempTicket.email,
+        firstName: tempTicket.first_name,
+        lastName: tempTicket.last_name,
+        updatedAt: new Date(ticket.updated_at),
+        createdAt: new Date(ticket.created_at),
+      });
+    });
+  }
+
+  allEmails.forEach((email: any) => {
+    emails.push({
+      id: email.id,
+      ticketId: email.ticket_id,
+      message: email.message,
+      createdAt: new Date(email.created_at),
+    })
+  })
+  return { tickets: tickets, emails: emails };
 }
 
 async function getAllTicketsForUser(
@@ -16,6 +45,9 @@ async function getAllTicketsForUser(
   const {data, error} = await createClient()
     .from("users")
     .select(`
+      email,
+      first_name,
+      last_name,
       helpdesk_ticket (*)
      `)
     .eq("email", userEmail)

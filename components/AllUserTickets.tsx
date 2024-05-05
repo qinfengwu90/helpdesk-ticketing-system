@@ -3,9 +3,7 @@ import { Notification, Ticket } from "@/models/models";
 import UserInfoToReviewTicket from "./UserInfoToReviewTicket";
 import UserExistingTickets from "./UserExistingTickets";
 import { formatTicketStatus } from "@/utilities/generalUtilities";
-import {
-  getAllTicketsAndEmailUpdatesForUser } from "@/utilities/userUtilities";
-import {undefined} from "zod";
+import { getAllTicketsAndEmailUpdatesForUser } from "@/utilities/userUtilities";
 
 function AllUserTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -19,12 +17,7 @@ function AllUserTickets() {
     if (userEmail && userLastName) {
       getAllTicketsAndEmailUpdatesForUser(userEmail, userLastName)
         .then((value) => {
-          console.log(value);
-          let tickets = [];
-          if (value.tickets?.length > 0) {
-            tickets = value.tickets[0].helpdesk_ticket;
-          }
-          onSuccess(tickets, value?.emails);
+          onSuccess(value?.tickets, value?.emails);
         })
         .catch((err) => {
           console.log(err);
@@ -33,40 +26,17 @@ function AllUserTickets() {
   }, []);
 
   const onSuccess = (
-    retrievedTickets: any[],
-    retrievedEmails: any[],
+    retrievedTickets: Ticket[],
+    retrievedEmails: Notification[],
   ) => {
     setCorrectUserInfoEntered(!correctUserInfoEntered);
+    retrievedTickets.forEach((ticket, index) => {
+      retrievedTickets[index].status = formatTicketStatus(ticket.status);
+    })
 
-    if (retrievedTickets !== null) {
-      let tickets: Ticket[] = [];
-      retrievedTickets.forEach((ticket, index) => {
-        // retrievedTickets[index].status = formatTicketStatus(ticket.status);
-        tickets.push({
-          userId: ticket.users.id,
-          id: ticket.id,
-          issueDescription: ticket.issue_description,
-          status: formatTicketStatus(ticket.status),
-          adminResponse: ticket.admin_response,
-          updatedAt: new Date(ticket.updated_at),
-          createdAt: new Date(ticket.created_at),
-        });
-      });
-      setTickets([...tickets]);
-    }
+    setTickets([...retrievedTickets]);
 
-    if (retrievedEmails !== null) {
-      let emails: Notification[] = []
-      retrievedEmails.forEach((email) => {
-        emails.push({
-          id: email.id,
-          ticketId: email.ticket_id,
-          message: email.message,
-          createdAt: new Date(email.created_at),
-        });
-        setEmails([...emails]);
-      })
-    }
+    setEmails([...retrievedEmails]);
   };
 
   const onLogout = () => {
