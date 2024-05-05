@@ -136,7 +136,7 @@ function AdminTicketView() {
     setDisplayModal(false);
     getAllTickets()
       .then((value) => {
-        // setTickets(value.tickets);
+        setTickets(value.tickets);
       })
       .catch((err) => {
         message.error(err.message);
