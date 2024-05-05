@@ -4,6 +4,7 @@ import {createClient} from "@/utilities/supabase/client";
 import { compareSync } from "bcrypt-ts";
 import jwt from 'jsonwebtoken';
 
+const JWT_SECRET_KEY = process.env.NEXT_PUBLIC_JWT_SECRET_KEY!;
 
 // TODO: delete this function
 export const adminLoginOld = (credential: { email: string; password: string }) => {
@@ -30,24 +31,16 @@ export const adminLoginOld = (credential: { email: string; password: string }) =
 };
 
 export const adminLogin = async (credential: { email: string; password: string }) => {
-  const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY!;
-  console.log("Supabase env: ", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-  console.log(process.env.JWT_SECRET_KEY);
-  console.log(process.env.RANDOM);
-
   return getAdminInfoByEmail(credential.email)
     .then((data) => {
       if (compareSync(credential.password, data?.hash)) {
-        console.log("Login successful")
-        console.log("JWT secret key: ", JWT_SECRET_KEY)
         // set and store JWT
         localStorage.setItem("adminEmail", credential.email);
-        const token = jwt.sign({email: credential.email}, JWT_SECRET_KEY, {
-          expiresIn: '2 days',
+        const token = jwt.sign({email: credential.email}, JWT_SECRET_KEY.toString(), {
+          expiresIn: '1 day',
           algorithm: 'HS256',
         });
         localStorage.setItem("authToken", token);
-        console.log(data)
         return true
       } else {
         console.log("Login failed")
