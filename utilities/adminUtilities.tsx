@@ -1,7 +1,12 @@
 import { Ticket } from "@/models/models";
 import { handleResponseStatus, SERVER_ORIGIN } from "./generalUtilities";
+import {createClient} from "@/utilities/supabase/client";
+import { compareSync } from "bcrypt-ts";
+import jwt from 'jsonwebtoken';
 
-export const adminLogin = (credential: { email: string; password: string }) => {
+
+// TODO: delete this function
+export const adminLoginOld = (credential: { email: string; password: string }) => {
   const loginUrl = `${SERVER_ORIGIN}/admins/login`;
 
   // call the api to login
@@ -23,6 +28,52 @@ export const adminLogin = (credential: { email: string; password: string }) => {
       localStorage.setItem("authToken", token.token);
     });
 };
+
+export const adminLogin = async (credential: { email: string; password: string }) => {
+  const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY!;
+  console.log("Supabase env: ", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  console.log(process.env.JWT_SECRET_KEY);
+  console.log(process.env.RANDOM);
+
+  return getAdminInfoByEmail(credential.email)
+    .then((data) => {
+      if (compareSync(credential.password, data?.hash)) {
+        console.log("Login successful")
+        console.log("JWT secret key: ", JWT_SECRET_KEY)
+        // set and store JWT
+        localStorage.setItem("adminEmail", credential.email);
+        const token = jwt.sign({email: credential.email}, JWT_SECRET_KEY, {
+          expiresIn: '2 days',
+          algorithm: 'HS256',
+        });
+        localStorage.setItem("authToken", token);
+        console.log(data)
+        return true
+      } else {
+        console.log("Login failed")
+        throw new Error("The password does not match the record");
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      throw new Error(error.message);
+    });
+}
+
+const getAdminInfoByEmail = async (email: string) => {
+  const {data, error} = await createClient()
+    .from("admins")
+    .select("hash")
+    .eq("email", email)
+    .limit(1)
+    .single();
+
+  if (error) {
+    throw new Error("The user does not exist");
+  }
+
+  return data;
+}
 
 export const registerAdmin = (
   email: string,
@@ -73,6 +124,38 @@ export const changeAdminPassword = (
 };
 
 export async function getAllTickets(): Promise<{ tickets: Ticket[] }> {
+  const {data, error} = await createClient()
+    .from("helpdesk_ticket")
+    .select(`
+      *,
+      users(*)
+    `)
+    .is("archived_at", null)
+
+  if (error) {
+    throw new Error("Fail to get tickets");
+  }
+
+  let tickets: Ticket[] = [];
+  data.forEach((ticket: any) => {
+    tickets.push({
+      id: ticket.id,
+      userId: ticket.user_id,
+      issueDescription: ticket.issue_description,
+      status: ticket.status,
+      adminResponse: ticket.admin_response,
+      firstName: ticket.users[0].first_name,
+      lastName: ticket.users[0].last_name,
+      email: ticket.users[0].email,
+      createdAt: ticket.created_at,
+      updatedAt: ticket.updated_at,
+    });
+  });
+
+  return { tickets: tickets };
+}
+
+export async function getAllTicketsOld(): Promise<{ tickets: Ticket[] }> {
   const url = `${SERVER_ORIGIN}/admins/all-tickets`;
 
   return fetch(url, {

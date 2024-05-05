@@ -22,15 +22,28 @@ function AdminLogin({onLoginSuccess}: { onLoginSuccess: () => void }) {
   }) => {
     setLoading(true);
 
-    try {
-      await adminLogin(data);
-      onLoginSuccess();
-    } catch (err: any) {
-      message.error(err.message);
-    } finally {
-      setLoading(false);
-      setDisplayModal(false);
-    }
+    // try {
+    //   await adminLogin(data);
+    //   onLoginSuccess();
+    // } catch (err: any) {
+    //   message.error(err.message);
+    // } finally {
+    //   setLoading(false);
+    //   setDisplayModal(false);
+    // }
+
+    adminLogin(data)
+      .then(() => {
+        onLoginSuccess();
+      })
+      .catch((err) => {
+        console.log(err);
+        message.error(err.message);
+      })
+      .finally(() => {
+        setLoading(false);
+        setDisplayModal(false);
+      })
   };
 
   return (
