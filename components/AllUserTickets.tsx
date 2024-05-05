@@ -16,8 +16,6 @@ function AllUserTickets() {
     let userEmail = localStorage.getItem("userEmail");
     let userLastName = localStorage.getItem("userLastName");
 
-    console.log("initial userEmail", userEmail, "initial userLastName", userLastName);
-
     if (userEmail && userLastName) {
       getAllTicketsAndEmailUpdatesForUser(userEmail, userLastName)
         .then((value) => {
@@ -39,11 +37,10 @@ function AllUserTickets() {
     retrievedEmails: any[],
   ) => {
     setCorrectUserInfoEntered(!correctUserInfoEntered);
-    console.log("retrievedTickets", retrievedTickets, "retrievedEmails", retrievedEmails);
+
     if (retrievedTickets !== null) {
       let tickets: Ticket[] = [];
       retrievedTickets.forEach((ticket, index) => {
-        console.log("each ticket", ticket);
         // retrievedTickets[index].status = formatTicketStatus(ticket.status);
         tickets.push({
           userId: ticket.users.id,
