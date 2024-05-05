@@ -1,5 +1,5 @@
 import { Ticket } from "@/models/models";
-import { handleResponseStatus, SERVER_ORIGIN } from "./generalUtilities";
+import {formatTicketStatus, handleResponseStatus, SERVER_ORIGIN} from "./generalUtilities";
 import {createClient} from "@/utilities/supabase/client";
 import { compareSync } from "bcrypt-ts";
 import jwt from 'jsonwebtoken';
@@ -135,11 +135,11 @@ export async function getAllTickets(): Promise<{ tickets: Ticket[] }> {
       id: ticket.id,
       userId: ticket.user_id,
       issueDescription: ticket.issue_description,
-      status: ticket.status,
+      status: formatTicketStatus(ticket.status),
       adminResponse: ticket.admin_response,
-      firstName: ticket.users[0].first_name,
-      lastName: ticket.users[0].last_name,
-      email: ticket.users[0].email,
+      firstName: ticket.users.first_name,
+      lastName: ticket.users.last_name,
+      email: ticket.users.email,
       createdAt: ticket.created_at,
       updatedAt: ticket.updated_at,
     });
@@ -162,7 +162,22 @@ export async function getAllTicketsOld(): Promise<{ tickets: Ticket[] }> {
   });
 }
 
-export const updateTicketStatus = (
+export const updateTicketStatus = async (
+  ticketId: number,
+  status: string,
+  adminResponse: string,
+) => {
+  const {error} = await createClient()
+    .from("helpdesk_ticket")
+    .update({status: status, admin_response: adminResponse})
+    .eq("id", ticketId);
+
+  if (error) {
+    throw new Error("Fail to update ticket status");
+  }
+}
+
+export const updateTicketStatusOld = (
   ticketId: number,
   status: string,
   adminResponse: string,
