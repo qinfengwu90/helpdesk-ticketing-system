@@ -1,5 +1,9 @@
+"use server";
+
 import {createClient} from "@/utilities/supabase/client";
 import {Notification, Ticket} from "@/models/models";
+import 'server-only'
+import {formatTicketStatus} from "@/utilities/generalUtilities";
 
 export const getAllTicketsAndEmailUpdatesForUser = async (
   userEmail: string,
@@ -16,7 +20,7 @@ export const getAllTicketsAndEmailUpdatesForUser = async (
         id: ticket.id,
         userId: ticket.user_id,
         issueDescription: ticket.issue_description,
-        status: ticket.status,
+        status: formatTicketStatus(ticket.status),
         adminResponse: ticket.admin_response,
         email: tempTicket.email,
         firstName: tempTicket.first_name,

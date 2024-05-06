@@ -27,7 +27,7 @@ export default function Home() {
   };
 
   return (
-    <Layout>
+    <Layout style={{height:"100vh"}}>
       <Header
         className={"px-5 md:px-10 flex flex-row items-center justify-between"}
       >

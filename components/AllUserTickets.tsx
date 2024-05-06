@@ -1,14 +1,23 @@
+"use client"
 import { useEffect, useState } from "react";
 import { Notification, Ticket } from "@/models/models";
 import UserInfoToReviewTicket from "./UserInfoToReviewTicket";
 import UserExistingTickets from "./UserExistingTickets";
-import { formatTicketStatus } from "@/utilities/generalUtilities";
 import { getAllTicketsAndEmailUpdatesForUser } from "@/utilities/userUtilities";
 
 function AllUserTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [emails, setEmails] = useState<Notification[]>([]);
   const [correctUserInfoEntered, setCorrectUserInfoEntered] = useState(false);
+
+  const onSuccess = (
+    retrievedTickets: Ticket[],
+    retrievedEmails: Notification[],
+  ) => {
+    setCorrectUserInfoEntered(!correctUserInfoEntered);
+    setTickets([...retrievedTickets]);
+    setEmails([...retrievedEmails]);
+  };
 
   useEffect(() => {
     let userEmail = localStorage.getItem("userEmail");
@@ -24,20 +33,6 @@ function AllUserTickets() {
         });
     }
   }, []);
-
-  const onSuccess = (
-    retrievedTickets: Ticket[],
-    retrievedEmails: Notification[],
-  ) => {
-    setCorrectUserInfoEntered(!correctUserInfoEntered);
-    retrievedTickets.forEach((ticket, index) => {
-      retrievedTickets[index].status = formatTicketStatus(ticket.status);
-    })
-
-    setTickets([...retrievedTickets]);
-
-    setEmails([...retrievedEmails]);
-  };
 
   const onLogout = () => {
     localStorage.removeItem("userEmail");

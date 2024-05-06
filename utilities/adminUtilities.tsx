@@ -1,10 +1,13 @@
+"use server"
+
 import { Ticket } from "@/models/models";
-import {formatTicketStatus, handleResponseStatus, SERVER_ORIGIN} from "./generalUtilities";
 import {createClient} from "@/utilities/supabase/client";
 import { compareSync } from "bcrypt-ts";
 import jwt from 'jsonwebtoken';
+import {formatTicketStatus} from "@/utilities/generalUtilities";
 
-const JWT_SECRET_KEY = process.env.NEXT_PUBLIC_JWT_SECRET_KEY!;
+
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY!;
 
 export const adminLogin = async (credential: { email: string; password: string }) => {
   return getAdminInfoByEmail(credential.email)
@@ -44,53 +47,53 @@ const getAdminInfoByEmail = async (email: string) => {
   return data;
 }
 
-export const registerAdmin = (
-  email: string,
-  password: string,
-  firstName: string,
-  lastName: string,
-) => {
-  const url = `${SERVER_ORIGIN}/admins/register-admin`;
+// export const registerAdmin = (
+//   email: string,
+//   password: string,
+//   firstName: string,
+//   lastName: string,
+// ) => {
+//   const url = `${SERVER_ORIGIN}/admins/register-admin`;
+//
+//   return fetch(url, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+//     },
+//     body: JSON.stringify({
+//       adminEmail: email,
+//       password: password,
+//       firstName: firstName,
+//       lastName: lastName,
+//     }),
+//   }).then((response) => {
+//     handleResponseStatus(response, "Fail to register");
+//   });
+// };
 
-  return fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-    },
-    body: JSON.stringify({
-      adminEmail: email,
-      password: password,
-      firstName: firstName,
-      lastName: lastName,
-    }),
-  }).then((response) => {
-    handleResponseStatus(response, "Fail to register");
-  });
-};
-
-export const changeAdminPassword = (
-  email: string,
-  oldPassword: string,
-  newPassword: string,
-) => {
-  const url = `${SERVER_ORIGIN}/admins/change-password`;
-
-  return fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-    },
-    body: JSON.stringify({
-      email: email,
-      oldPassword: oldPassword,
-      newPassword: newPassword,
-    }),
-  }).then((response) => {
-    handleResponseStatus(response, "Fail to change password");
-  });
-};
+// export const changeAdminPassword = (
+//   email: string,
+//   oldPassword: string,
+//   newPassword: string,
+// ) => {
+//   const url = `${SERVER_ORIGIN}/admins/change-password`;
+//
+//   return fetch(url, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+//     },
+//     body: JSON.stringify({
+//       email: email,
+//       oldPassword: oldPassword,
+//       newPassword: newPassword,
+//     }),
+//   }).then((response) => {
+//     handleResponseStatus(response, "Fail to change password");
+//   });
+// };
 
 export async function getAllTickets(): Promise<{ tickets: Ticket[] }> {
   const {data, error} = await createClient()
