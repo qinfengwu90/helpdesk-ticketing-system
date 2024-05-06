@@ -29,7 +29,7 @@ export default function Home() {
   return (
     <Layout style={{"minHeight":"100vh"}}>
       <Header
-        className={"min-h-full px-5 md:px-10 flex flex-row items-center justify-between"}
+        className={"px-5 md:px-10 flex flex-row items-center justify-between"}
       >
         <div className={"text-white font-semibold text-sm md:text-lg gap-x-1"}>
           <LayoutOutlined/> Help Desk Ticketing System
