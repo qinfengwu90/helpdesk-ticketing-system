@@ -1,4 +1,4 @@
-// "use server";
+"use server";
 
 import {createClient} from "@/utilities/supabase/client";
 import {Notification, Ticket} from "@/models/models";

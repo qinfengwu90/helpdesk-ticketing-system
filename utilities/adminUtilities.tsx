@@ -1,4 +1,4 @@
-// "use server"
+"use server"
 
 import { Ticket } from "@/models/models";
 import {createClient} from "@/utilities/supabase/client";
