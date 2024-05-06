@@ -1,8 +1,7 @@
-"use server";
+// "use server";
 
 import {createClient} from "@/utilities/supabase/client";
 import {Notification, Ticket} from "@/models/models";
-import 'server-only'
 import {formatTicketStatus} from "@/utilities/generalUtilities";
 
 export const getAllTicketsAndEmailUpdatesForUser = async (
