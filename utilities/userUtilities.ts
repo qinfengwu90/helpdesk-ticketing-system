@@ -87,7 +87,6 @@ export const createTicket = async (
   lastName: string,
 ) => {
   let userId = null;
-  let error = null;
   // Check if user exists
   let { data, count } = await createClient()
     .from("users")
@@ -95,8 +94,6 @@ export const createTicket = async (
     .eq("email", email);
 
   console.log("user exists", data, "count", count);
-
-  userId = data ? data[0].id : null;
 
   // if not, create user
   if (count === 0) {
@@ -111,14 +108,14 @@ export const createTicket = async (
       ])
       .select();
 
-    console.log("create user", data, "error create user", error);
-
     if (error) {
       throw new Error("Fail to create user");
     }
+    userId = data ? data[0].id : null; // this "data" is local variable to this block
+  } else {
     userId = data ? data[0].id : null;
   }
-  console.log("user id", userId, "description", description);
+
   // create ticket
    return createClient()
      .from("helpdesk_ticket")
