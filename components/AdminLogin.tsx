@@ -1,7 +1,9 @@
 import {useState} from "react";
 import {adminLogin} from "@/utilities/adminUtilities";
-import {Button, Form, Input, message, Modal} from "antd";
+import {Button, Form, Input, message} from "antd";
 import {LockOutlined, MailOutlined} from "@ant-design/icons";
+import FormItem from "antd/lib/form/FormItem";
+import Modal from "antd/lib/modal/Modal";
 
 function AdminLogin({onLoginSuccess}: { onLoginSuccess: () => void }) {
   const [displayModal, setDisplayModal] = useState(false);
@@ -49,21 +51,21 @@ function AdminLogin({onLoginSuccess}: { onLoginSuccess: () => void }) {
         destroyOnClose={true}
       >
         <Form name="normal_login" onFinish={handleFormSubmit} preserve={false}>
-          <Form.Item
+          <FormItem
             name="email"
             rules={[{required: true, message: "Please input your email"}]}
           >
             <Input prefix={<MailOutlined/>} placeholder="Email"/>
-          </Form.Item>
-          <Form.Item
+          </FormItem>
+          <FormItem
             name="password"
             rules={[{required: true, message: "Please input your password"}]}
           >
             <Input.Password prefix={<LockOutlined/>} placeholder="Password"/>
-          </Form.Item>
-          <Form.Item>
+          </FormItem>
+          <FormItem>
             <Button htmlType="submit">Login</Button>
-          </Form.Item>
+          </FormItem>
         </Form>
       </Modal>
     </>
