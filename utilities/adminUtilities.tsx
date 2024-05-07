@@ -1,5 +1,3 @@
-"use server"
-
 import { Ticket } from "@/models/models";
 import {createClient} from "@/utilities/supabase/client";
 import { compareSync } from "bcrypt-ts";
@@ -7,19 +5,19 @@ import jwt from 'jsonwebtoken';
 import {formatTicketStatus} from "@/utilities/generalUtilities";
 
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY!;
+const JWT_SECRET_KEY = process.env.NEXT_PUBLIC_JWT_SECRET_KEY!;
 
 export const adminLogin = async (credential: { email: string; password: string }) => {
   return getAdminInfoByEmail(credential.email)
     .then((data) => {
       if (compareSync(credential.password, data?.hash)) {
         // set and store JWT
-        localStorage.setItem("adminEmail", credential.email);
+        // localStorage.setItem("adminEmail", credential.email);
         const token = jwt.sign({email: credential.email}, JWT_SECRET_KEY.toString(), {
           expiresIn: '1 day',
           algorithm: 'HS256',
         });
-        localStorage.setItem("authToken", token);
+        // localStorage.setItem("authToken", token);
         return true
       } else {
         console.log("Login failed")
